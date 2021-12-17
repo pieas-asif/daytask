@@ -32,6 +32,8 @@ dependencies:
 
   # Icon Pack by Feather Icons
   flutter_feather_icons: ^2.0.0+1
+  # sqflite for storing database
+  sqflite: ^2.0.1
 
 dev_dependencies:
   flutter_test:
