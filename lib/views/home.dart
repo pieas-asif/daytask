@@ -1,3 +1,4 @@
+import 'package:daytask/controller/db.dart';
 import 'package:daytask/models/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
@@ -11,6 +12,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final DBProvider _dbProvider = DBProvider.instance;
+  TextEditingController taskTextFieldController = TextEditingController();
+
+  void addTaskToDB({required String task}) async {
+    await _dbProvider.insert(TaskTable.name, {
+      TaskTable.colIsChecked: 0,
+      TaskTable.colTaskDate: DateTime.now().toString().split(" ").first,
+      TaskTable.colTaskTitle: task
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,9 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: DTTheme.white,
                     ),
                   ),
-                  IconButton(
-                    onPressed: null,
-                    icon: Icon(
+                  GestureDetector(
+                    onTap: () =>
+                        print(DateTime.now().toString().split(" ").first),
+                    child: Icon(
                       FeatherIcons.settings,
                       color: DTTheme.white,
                     ),
@@ -122,11 +135,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: DTTheme.white,
                             ),
                           ),
+                          trailing: const IconButton(
+                            onPressed: null,
+                            icon: Icon(FeatherIcons.moreHorizontal),
+                          ),
                         ),
                       ),
                     for (var i = 0; i < 3; i++)
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4.0),
+                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
                         child: ListTile(
                           leading: Icon(
                             FeatherIcons.checkSquare,
@@ -154,7 +171,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: Container(
+                      height: 50,
                       child: TextField(
+                        controller: taskTextFieldController,
+                        cursorColor: DTTheme.white,
+                        cursorWidth: 3.0,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(0.0),
@@ -170,19 +191,38 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 3.0,
                             ),
                           ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(0.0),
+                            borderSide: BorderSide(
+                              color: DTTheme.white,
+                              width: 3.0,
+                            ),
+                          ),
                         ),
+                        onSubmitted: (task) {
+                          addTaskToDB(task: task);
+                          taskTextFieldController.clear();
+                        },
                       ),
                     ),
                   ),
                   Container(
-                    height: 51,
+                    height: 50,
                     width: 80,
                     decoration: BoxDecoration(
                       color: DTTheme.white,
                     ),
                     child: Center(
                       child: IconButton(
-                        onPressed: null,
+                        onPressed: () {
+                          String task = taskTextFieldController.value.text;
+                          if (task.isNotEmpty) {
+                            addTaskToDB(task: task);
+                            taskTextFieldController.clear();
+                          } else {
+                            print("Empty");
+                          }
+                        },
                         icon: Icon(
                           FeatherIcons.send,
                           color: DTTheme.black,
