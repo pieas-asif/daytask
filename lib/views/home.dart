@@ -1,7 +1,9 @@
 import 'package:daytask/controller/db.dart';
 import 'package:daytask/models/constants.dart';
+import 'package:daytask/models/task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String id = 'home_screen';
@@ -14,13 +16,79 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final DBProvider _dbProvider = DBProvider.instance;
   TextEditingController taskTextFieldController = TextEditingController();
+  List<Task> tasks = [];
+  late DateTime dateTime;
+
+  @override
+  void initState() {
+    dateTime = DateTime.now();
+    fetchTasksFromDB();
+    super.initState();
+  }
+
+  void fetchTasksFromDB() async {
+    List<Map<String, dynamic>> tableData = await _dbProvider.query(
+      TaskTable.name,
+      where: "${TaskTable.colTaskDate} = ?",
+      whereArgs: [
+        DateTime.now().toString().split(" ").first,
+      ],
+    );
+
+    tasks = [];
+    for (Map<String, dynamic> data in tableData) {
+      tasks.add(
+        Task(
+          id: data["id"],
+          task: data[TaskTable.colTaskTitle],
+          isCompleted: data[TaskTable.colIsChecked] == 0 ? false : true,
+        ),
+      );
+    }
+
+    setState(() {});
+  }
 
   void addTaskToDB({required String task}) async {
     await _dbProvider.insert(TaskTable.name, {
       TaskTable.colIsChecked: 0,
-      TaskTable.colTaskDate: DateTime.now().toString().split(" ").first,
+      TaskTable.colTaskDate: dateTime.toString().split(" ").first,
       TaskTable.colTaskTitle: task
     });
+
+    fetchTasksFromDB();
+  }
+
+  void toggleCompleted(Task task) async {
+    await _dbProvider.update(
+      TaskTable.name,
+      {TaskTable.colIsChecked: task.isCompleted == false ? 1 : 0},
+      where: "id = ?",
+      whereArgs: [task.id],
+    );
+
+    setState(() {
+      task.isCompleted = !task.isCompleted;
+    });
+  }
+
+  String? greet() {
+    int hours = dateTime.hour;
+    String? greeting;
+
+    if (hours >= 0 && hours <= 12) {
+      greeting = "Good Morning";
+    } else if (hours >= 12 && hours <= 16) {
+      greeting = "Good Noon";
+    } else if (hours >= 16 && hours <= 18) {
+      greeting = "Good Afternoon";
+    } else if (hours >= 18 && hours <= 21) {
+      greeting = "Good Evening";
+    } else if (hours >= 21 && hours <= 24) {
+      greeting = "Good Night";
+    }
+
+    return greeting;
   }
 
   @override
@@ -47,8 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () =>
-                        print(DateTime.now().toString().split(" ").first),
+                    onTap: null, // TODO: Navigate to Setting Screen
                     child: Icon(
                       FeatherIcons.settings,
                       color: DTTheme.white,
@@ -63,26 +130,28 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    "Good Morning, ",
+                    greet() ??
+                        "Hello there, ", // TODO: Good Morning, Noon etc etc
                     style: TextStyle(
                       fontSize: 16,
                       color: DTTheme.white,
                     ),
                   ),
                   Text(
-                    "Today is Friday, 17-12-2021.",
+                    "Today is ${DateFormat('EEEE').format(dateTime)}, ${DateFormat('MMMM d, y').format(dateTime)}.",
                     style: TextStyle(
                       fontSize: 16,
                       color: DTTheme.white,
                     ),
                   ),
-                  Text(
-                    "It's 19°C in Dhaka, Bangladesh.",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: DTTheme.white,
-                    ),
-                  ),
+                  // TODO: Add Weather Info Too
+                  // Text(
+                  //   "It's 19°C in Dhaka, Bangladesh.",
+                  //   style: TextStyle(
+                  //     fontSize: 16,
+                  //     color: DTTheme.white,
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -121,40 +190,42 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (var i = 0; i < 2; i++)
+                    for (var i in tasks)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4.0),
                         child: ListTile(
-                          leading: Icon(
-                            FeatherIcons.square,
-                            color: DTTheme.white,
-                          ),
-                          title: Text(
-                            "This task needs to be completed",
-                            style: TextStyle(
+                          leading: IconButton(
+                            onPressed: () {
+                              toggleCompleted(i);
+                            },
+                            icon: Icon(
+                              i.isCompleted
+                                  ? FeatherIcons.checkSquare
+                                  : FeatherIcons.square,
                               color: DTTheme.white,
                             ),
                           ),
-                          trailing: const IconButton(
-                            onPressed: null,
-                            icon: Icon(FeatherIcons.moreHorizontal),
-                          ),
-                        ),
-                      ),
-                    for (var i = 0; i < 3; i++)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: ListTile(
-                          leading: Icon(
-                            FeatherIcons.checkSquare,
-                            color: DTTheme.white,
-                          ),
                           title: Text(
-                            "This task is completed",
+                            i.task,
                             style: TextStyle(
                               color: DTTheme.white,
+                              decoration: i.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : TextDecoration.none,
                             ),
                           ),
+                          trailing: PopupMenuButton(
+                              icon: const Icon(FeatherIcons.moreHorizontal),
+                              itemBuilder: (context) => [
+                                    const PopupMenuItem(
+                                      child: Text("Edit"),
+                                      value: 1,
+                                    ),
+                                    const PopupMenuItem(
+                                      child: Text("Delete"),
+                                      value: 2,
+                                    ),
+                                  ]),
                         ),
                       ),
                   ],
@@ -170,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Container(
+                    child: SizedBox(
                       height: 50,
                       child: TextField(
                         controller: taskTextFieldController,
@@ -220,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             addTaskToDB(task: task);
                             taskTextFieldController.clear();
                           } else {
-                            print("Empty");
+                            // TODO: some to do here
                           }
                         },
                         icon: Icon(

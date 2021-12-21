@@ -37,9 +37,11 @@ class DBProvider {
     return await openDatabase(join(await getDatabasesPath(), 'daytask.db'),
         onCreate: (db, version) async {
       await db.execute('''CREATE TABLE ${FixedTaskTable.name} (
-          ${FixedTaskTable.colTaskTitle}["name"]} TEXT
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          ${FixedTaskTable.colTaskTitle} TEXT NOT NULL
         )''');
       await db.execute('''CREATE TABLE ${TaskTable.name} (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           ${TaskTable.colTaskDate} TEXT NOT NULL,
           ${TaskTable.colIsChecked} INTEGER NOT NULL,
           ${TaskTable.colTaskTitle} TEXT NOT NULL

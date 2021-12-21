@@ -34,6 +34,8 @@ dependencies:
   flutter_feather_icons: ^2.0.0+1
   # sqflite for storing database
   sqflite: ^2.0.1
+  # intl for date time formatting
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
