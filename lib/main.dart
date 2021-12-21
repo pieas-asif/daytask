@@ -12,7 +12,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Day Task',
-      theme: ThemeData.dark(),
+      theme: ThemeData(
+        fontFamily: "UbuntuMono",
+        brightness: Brightness.dark,
+      ),
       initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),

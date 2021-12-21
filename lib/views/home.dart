@@ -17,6 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final DBProvider _dbProvider = DBProvider.instance;
   TextEditingController taskTextFieldController = TextEditingController();
   List<Task> tasks = [];
+  int taskCounter = 0;
+  int completedTaskCounter = 0;
   late DateTime dateTime;
 
   @override
@@ -36,7 +38,11 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     tasks = [];
+    taskCounter = 0;
+    completedTaskCounter = 0;
     for (Map<String, dynamic> data in tableData) {
+      taskCounter += 1;
+      if (data[TaskTable.colIsChecked] == 1) completedTaskCounter += 1;
       tasks.add(
         Task(
           id: data["id"],
@@ -69,6 +75,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       task.isCompleted = !task.isCompleted;
+      if (task.isCompleted) {
+        completedTaskCounter += 1;
+      } else {
+        completedTaskCounter -= 1;
+      }
+    });
+  }
+
+  void deleteTask(Task task) async {
+    await _dbProvider.delete(
+      TaskTable.name,
+      where: "id = ?",
+      whereArgs: [task.id],
+    );
+
+    setState(() {
+      if (task.isCompleted) completedTaskCounter -= 1;
+      taskCounter -= 1;
+      tasks.remove(task);
     });
   }
 
@@ -175,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   Text(
-                    "3 out of 5 completed",
+                    "$completedTaskCounter out of $taskCounter completed",
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w200,
@@ -215,17 +240,33 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           trailing: PopupMenuButton(
-                              icon: const Icon(FeatherIcons.moreHorizontal),
-                              itemBuilder: (context) => [
-                                    const PopupMenuItem(
-                                      child: Text("Edit"),
-                                      value: 1,
-                                    ),
-                                    const PopupMenuItem(
-                                      child: Text("Delete"),
-                                      value: 2,
-                                    ),
-                                  ]),
+                            icon: const Icon(FeatherIcons.moreHorizontal),
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                child: Text("Edit"),
+                                value: 1,
+                                enabled: false,
+                              ),
+                              const PopupMenuItem(
+                                child: Text("Delete"),
+                                value: 2,
+                              ),
+                            ],
+                            onSelected: (value) {
+                              switch (value) {
+                                case 1:
+                                  {
+                                    // TODO: Edit
+                                  }
+                                  break;
+                                case 2:
+                                  {
+                                    deleteTask(i);
+                                  }
+                                  break;
+                              }
+                            },
+                          ),
                         ),
                       ),
                   ],

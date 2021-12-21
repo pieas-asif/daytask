@@ -64,6 +64,13 @@ class DBProvider {
     return await db.update(tableName, row, where: where, whereArgs: whereArgs);
   }
 
+  // this function delete row(s) from the table
+  Future<int> delete(String tableName,
+      {String? where, List<Object?>? whereArgs}) async {
+    Database db = await instance.database;
+    return await db.delete(tableName, where: where, whereArgs: whereArgs);
+  }
+
   // this function query all data from table that's name passed as a argument
   Future<List<Map<String, dynamic>>> queryAll(String tableName) async {
     Database db = await instance.database;
@@ -83,7 +90,7 @@ class DBProvider {
   // and creates an empty table there
   Future<void> dropTable(String tableName) async {
     Database db = await instance.database;
-    String dbPath = join(await getDatabasesPath(), 'quidtrails.db');
+    String dbPath = join(await getDatabasesPath(), 'daytask.db');
     await db.execute('''DROP DATABASE $dbPath''');
   }
 }
