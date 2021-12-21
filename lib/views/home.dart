@@ -283,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 50,
+                      height: 55,
                       child: TextField(
                         controller: taskTextFieldController,
                         cursorColor: DTTheme.white,
@@ -319,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   Container(
-                    height: 50,
+                    height: 55,
                     width: 80,
                     decoration: BoxDecoration(
                       color: DTTheme.white,
