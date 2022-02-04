@@ -84,6 +84,6 @@ flutter:
   fonts:
     - family: UbuntuMono
       fonts:
-      - asset: assets/fonts/UbuntuMono/regular.ttf
-      - asset: assets/fonts/UbuntuMono/bold.ttf
-        weight: 700
+        - asset: assets/fonts/UbuntuMono/regular.ttf
+        - asset: assets/fonts/UbuntuMono/bold.ttf
+          weight: 700

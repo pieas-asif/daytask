@@ -15,16 +15,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final DBProvider _dbProvider = DBProvider.instance;
-  TextEditingController taskTextFieldController = TextEditingController();
+  final TextEditingController taskTextFieldController = TextEditingController();
+  final FocusNode taskTextFieldFocusNode = FocusNode();
   List<Task> tasks = [];
   int taskCounter = 0;
   int completedTaskCounter = 0;
+  bool updateTask = false;
+  Task? updateableTask;
   late DateTime dateTime;
 
   @override
   void initState() {
     dateTime = DateTime.now();
     fetchTasksFromDB();
+
     super.initState();
   }
 
@@ -63,6 +67,22 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     fetchTasksFromDB();
+  }
+
+  void updateTaskToDB({
+    required Task task,
+    required String text,
+  }) async {
+    await _dbProvider.update(
+      TaskTable.name,
+      {TaskTable.colTaskTitle: text},
+      where: "id = ?",
+      whereArgs: [task.id],
+    );
+
+    setState(() {
+      task.task = text;
+    });
   }
 
   void toggleCompleted(Task task) async {
@@ -142,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   GestureDetector(
                     onTap: null, // TODO: Navigate to Setting Screen
                     child: Icon(
-                      FeatherIcons.settings,
+                      FeatherIcons.menu,
                       color: DTTheme.white,
                     ),
                   ),
@@ -169,14 +189,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: DTTheme.white,
                     ),
                   ),
-                  // TODO: Add Weather Info Too
-                  // Text(
-                  //   "It's 19°C in Dhaka, Bangladesh.",
-                  //   style: TextStyle(
-                  //     fontSize: 16,
-                  //     color: DTTheme.white,
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -245,7 +257,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               const PopupMenuItem(
                                 child: Text("Edit"),
                                 value: 1,
-                                enabled: false,
                               ),
                               const PopupMenuItem(
                                 child: Text("Delete"),
@@ -256,7 +267,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               switch (value) {
                                 case 1:
                                   {
-                                    // TODO: Edit
+                                    setState(() {
+                                      updateTask = true;
+                                      updateableTask = i;
+                                      taskTextFieldController.text = i.task;
+                                    });
+                                    taskTextFieldFocusNode.requestFocus();
                                   }
                                   break;
                                 case 2:
@@ -286,6 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       height: 55,
                       child: TextField(
                         controller: taskTextFieldController,
+                        focusNode: taskTextFieldFocusNode,
                         cursorColor: DTTheme.white,
                         cursorWidth: 3.0,
                         decoration: InputDecoration(
@@ -329,8 +346,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () {
                           String task = taskTextFieldController.value.text;
                           if (task.isNotEmpty) {
-                            addTaskToDB(task: task);
-                            taskTextFieldController.clear();
+                            if (!updateTask) {
+                              addTaskToDB(task: task);
+                              taskTextFieldController.clear();
+                            } else {
+                              if (updateableTask != null) {
+                                updateTaskToDB(
+                                  task: updateableTask!,
+                                  text: task,
+                                );
+                                taskTextFieldController.clear();
+                                setState(() {
+                                  updateTask = false;
+                                  updateableTask = null;
+                                });
+                                taskTextFieldFocusNode.unfocus();
+                              }
+                            }
                           } else {
                             // TODO: some to do here
                           }
