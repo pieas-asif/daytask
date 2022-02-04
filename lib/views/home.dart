@@ -17,18 +17,20 @@ class _HomeScreenState extends State<HomeScreen> {
   final DBProvider _dbProvider = DBProvider.instance;
   final TextEditingController taskTextFieldController = TextEditingController();
   final FocusNode taskTextFieldFocusNode = FocusNode();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Task> tasks = [];
   int taskCounter = 0;
   int completedTaskCounter = 0;
   bool updateTask = false;
   Task? updateableTask;
   late DateTime dateTime;
+  late DateTime taskDate;
 
   @override
   void initState() {
     dateTime = DateTime.now();
+    taskDate = dateTime;
     fetchTasksFromDB();
-
     super.initState();
   }
 
@@ -37,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
       TaskTable.name,
       where: "${TaskTable.colTaskDate} = ?",
       whereArgs: [
-        DateTime.now().toString().split(" ").first,
+        taskDate.toString().split(" ").first,
       ],
     );
 
@@ -79,7 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
       where: "id = ?",
       whereArgs: [task.id],
     );
-
     setState(() {
       task.task = text;
     });
@@ -136,9 +137,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return greeting;
   }
 
+  _setTaskDate({DateTime? date}) {
+    setState(() {
+      taskDate = date ?? dateTime;
+    });
+    fetchTasksFromDB();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: DTTheme.black,
       body: SafeArea(
         child: Column(
@@ -160,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: null, // TODO: Navigate to Setting Screen
+                    onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
                     child: Icon(
                       FeatherIcons.menu,
                       color: DTTheme.white,
@@ -175,8 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    greet() ??
-                        "Hello there, ", // TODO: Good Morning, Noon etc etc
+                    greet() ?? "Hello there, ",
                     style: TextStyle(
                       fontSize: 16,
                       color: DTTheme.white,
@@ -194,8 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Padding(
               padding: const EdgeInsets.only(
-                top: 30.0,
-                bottom: 10.0,
+                top: 10.0,
                 left: 20.0,
                 right: 20.0,
               ),
@@ -203,12 +210,26 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(
-                    "Goals",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: DTTheme.white,
+                  MaterialButton(
+                    onPressed: () {
+                      showDatePicker(
+                        context: context,
+                        initialDate: taskDate,
+                        firstDate: DateTime(2022),
+                        lastDate: DateTime(2025),
+                      ).then((value) => _setTaskDate(date: value));
+                    },
+                    color: DTTheme.white,
+                    child: Text(
+                      dateTime.toString().split(" ").first ==
+                              taskDate.toString().split(" ").first
+                          ? "TODAY"
+                          : taskDate.toString().split(" ").first,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: DTTheme.black,
+                      ),
                     ),
                   ),
                   Text(
@@ -295,87 +316,103 @@ class _HomeScreenState extends State<HomeScreen> {
                 right: 20.0,
                 bottom: 20.0,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 55,
-                      child: TextField(
-                        controller: taskTextFieldController,
-                        focusNode: taskTextFieldFocusNode,
-                        cursorColor: DTTheme.white,
-                        cursorWidth: 3.0,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(0.0),
-                            borderSide: BorderSide(
-                              color: DTTheme.white,
-                              width: 3.0,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(0.0),
-                            borderSide: BorderSide(
-                              color: DTTheme.white,
-                              width: 3.0,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(0.0),
-                            borderSide: BorderSide(
-                              color: DTTheme.white,
-                              width: 3.0,
+              child: dateTime.toString().split(" ").first ==
+                      taskDate.toString().split(" ").first
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            height: 55,
+                            child: TextField(
+                              controller: taskTextFieldController,
+                              focusNode: taskTextFieldFocusNode,
+                              cursorColor: DTTheme.white,
+                              cursorWidth: 3.0,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(0.0),
+                                  borderSide: BorderSide(
+                                    color: DTTheme.white,
+                                    width: 3.0,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(0.0),
+                                  borderSide: BorderSide(
+                                    color: DTTheme.white,
+                                    width: 3.0,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(0.0),
+                                  borderSide: BorderSide(
+                                    color: DTTheme.white,
+                                    width: 3.0,
+                                  ),
+                                ),
+                              ),
+                              onSubmitted: (task) {
+                                addTaskToDB(task: task);
+                                taskTextFieldController.clear();
+                              },
                             ),
                           ),
                         ),
-                        onSubmitted: (task) {
-                          addTaskToDB(task: task);
-                          taskTextFieldController.clear();
-                        },
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 55,
-                    width: 80,
-                    decoration: BoxDecoration(
-                      color: DTTheme.white,
-                    ),
-                    child: Center(
-                      child: IconButton(
-                        onPressed: () {
-                          String task = taskTextFieldController.value.text;
-                          if (task.isNotEmpty) {
-                            if (!updateTask) {
-                              addTaskToDB(task: task);
-                              taskTextFieldController.clear();
-                            } else {
-                              if (updateableTask != null) {
-                                updateTaskToDB(
-                                  task: updateableTask!,
-                                  text: task,
-                                );
-                                taskTextFieldController.clear();
-                                setState(() {
-                                  updateTask = false;
-                                  updateableTask = null;
-                                });
-                                taskTextFieldFocusNode.unfocus();
-                              }
-                            }
-                          } else {
-                            // TODO: some to do here
-                          }
-                        },
-                        icon: Icon(
-                          FeatherIcons.send,
+                        Container(
+                          height: 55,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: DTTheme.white,
+                          ),
+                          child: Center(
+                            child: IconButton(
+                              onPressed: () {
+                                String task =
+                                    taskTextFieldController.value.text;
+                                if (task.isNotEmpty) {
+                                  if (!updateTask) {
+                                    addTaskToDB(task: task);
+                                    taskTextFieldController.clear();
+                                  } else {
+                                    if (updateableTask != null) {
+                                      updateTaskToDB(
+                                        task: updateableTask!,
+                                        text: task,
+                                      );
+                                      taskTextFieldController.clear();
+                                      setState(() {
+                                        updateTask = false;
+                                        updateableTask = null;
+                                      });
+                                      taskTextFieldFocusNode.unfocus();
+                                    }
+                                  }
+                                } else {
+                                  // TODO: some to do here
+                                }
+                              },
+                              icon: Icon(
+                                FeatherIcons.send,
+                                color: DTTheme.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : MaterialButton(
+                      onPressed: () => _setTaskDate(),
+                      child: Text(
+                        "BACK TO TODAY",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                           color: DTTheme.black,
                         ),
                       ),
+                      color: DTTheme.white,
+                      height: 55,
                     ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
