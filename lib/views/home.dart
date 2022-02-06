@@ -373,6 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   if (!updateTask) {
                                     addTaskToDB(task: task);
                                     taskTextFieldController.clear();
+                                    taskTextFieldFocusNode.unfocus();
                                   } else {
                                     if (updateableTask != null) {
                                       updateTaskToDB(
