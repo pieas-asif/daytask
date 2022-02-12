@@ -164,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: DTTheme.black,
+      backgroundColor: DTTheme.dark,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -181,14 +181,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     "Agenda",
                     style: TextStyle(
                       fontSize: 24,
-                      color: DTTheme.white,
+                      color: DTTheme.light,
                     ),
                   ),
                   GestureDetector(
                     onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
                     child: Icon(
                       FeatherIcons.menu,
-                      color: DTTheme.white,
+                      color: DTTheme.light,
                     ),
                   ),
                 ],
@@ -203,14 +203,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     greet() ?? "Hello there, ",
                     style: TextStyle(
                       fontSize: 16,
-                      color: DTTheme.white,
+                      color: DTTheme.light,
                     ),
                   ),
                   Text(
                     "Today is ${DateFormat('EEEE').format(dateTime)}, ${DateFormat('MMMM d, y').format(dateTime)}.",
                     style: TextStyle(
                       fontSize: 16,
-                      color: DTTheme.white,
+                      color: DTTheme.light,
                     ),
                   ),
                 ],
@@ -235,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         lastDate: DateTime(2025),
                       ).then((value) => _setTaskDate(date: value));
                     },
-                    color: DTTheme.white,
+                    color: DTTheme.light,
                     child: Text(
                       dateTime.toString().split(" ").first ==
                               taskDate.toString().split(" ").first
@@ -244,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: DTTheme.black,
+                        color: DTTheme.dark,
                       ),
                     ),
                   ),
@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w200,
-                      color: DTTheme.white,
+                      color: DTTheme.light,
                     ),
                   ),
                 ],
@@ -276,20 +276,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               i.isCompleted
                                   ? FeatherIcons.checkSquare
                                   : FeatherIcons.square,
-                              color: DTTheme.white,
+                              color: DTTheme.light,
                             ),
                           ),
                           title: Text(
                             i.task,
                             style: TextStyle(
-                              color: DTTheme.white,
+                              color: DTTheme.light,
                               decoration: i.isCompleted
                                   ? TextDecoration.lineThrough
                                   : TextDecoration.none,
                             ),
                           ),
                           trailing: PopupMenuButton(
-                            icon: const Icon(FeatherIcons.moreHorizontal),
+                            icon: Icon(
+                              FeatherIcons.moreHorizontal,
+                              color: DTTheme.light,
+                            ),
                             itemBuilder: (context) => [
                               const PopupMenuItem(
                                 child: Text("Edit"),
@@ -361,27 +364,27 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: TextField(
                               controller: taskTextFieldController,
                               focusNode: taskTextFieldFocusNode,
-                              cursorColor: DTTheme.white,
+                              cursorColor: DTTheme.light,
                               cursorWidth: 3.0,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(0.0),
                                   borderSide: BorderSide(
-                                    color: DTTheme.white,
+                                    color: DTTheme.light,
                                     width: 3.0,
                                   ),
                                 ),
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(0.0),
                                   borderSide: BorderSide(
-                                    color: DTTheme.white,
+                                    color: DTTheme.light,
                                     width: 3.0,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(0.0),
                                   borderSide: BorderSide(
-                                    color: DTTheme.white,
+                                    color: DTTheme.light,
                                     width: 3.0,
                                   ),
                                 ),
@@ -413,7 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 55,
                           width: 80,
                           decoration: BoxDecoration(
-                            color: DTTheme.white,
+                            color: DTTheme.light,
                           ),
                           child: Center(
                             child: IconButton(
@@ -445,7 +448,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                               icon: Icon(
                                 FeatherIcons.send,
-                                color: DTTheme.black,
+                                color: DTTheme.dark,
                               ),
                             ),
                           ),
@@ -459,10 +462,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: DTTheme.black,
+                          color: DTTheme.dark,
                         ),
                       ),
-                      color: DTTheme.white,
+                      color: DTTheme.light,
                       height: 55,
                     ),
             ),
