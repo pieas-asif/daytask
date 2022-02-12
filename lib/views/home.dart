@@ -144,6 +144,22 @@ class _HomeScreenState extends State<HomeScreen> {
     fetchTasksFromDB();
   }
 
+  _moveTaskToDate({
+    required Task task,
+    DateTime? date,
+  }) async {
+    await _dbProvider.update(
+      TaskTable.name,
+      {
+        TaskTable.colTaskDate: date?.toString().split(" ").first ??
+            dateTime.toString().split(" ").first,
+      },
+      where: "id = ?",
+      whereArgs: [task.id],
+    );
+    fetchTasksFromDB();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -283,6 +299,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Text("Delete"),
                                 value: 2,
                               ),
+                              const PopupMenuItem(
+                                child: Text("Move"),
+                                value: 3,
+                              ),
                             ],
                             onSelected: (value) {
                               switch (value) {
@@ -299,6 +319,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 case 2:
                                   {
                                     deleteTask(i);
+                                  }
+                                  break;
+                                case 3:
+                                  {
+                                    showDatePicker(
+                                      context: context,
+                                      initialDate: taskDate,
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime(2025),
+                                    ).then(
+                                      (value) => _moveTaskToDate(
+                                        date: value,
+                                        task: i,
+                                      ),
+                                    );
                                   }
                                   break;
                               }
@@ -352,8 +387,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               onSubmitted: (task) {
-                                addTaskToDB(task: task);
-                                taskTextFieldController.clear();
+                                if (!updateTask) {
+                                  addTaskToDB(task: task);
+                                  taskTextFieldController.clear();
+                                  taskTextFieldFocusNode.unfocus();
+                                } else {
+                                  if (updateableTask != null) {
+                                    updateTaskToDB(
+                                      task: updateableTask!,
+                                      text: task,
+                                    );
+                                    taskTextFieldController.clear();
+                                    setState(() {
+                                      updateTask = false;
+                                      updateableTask = null;
+                                    });
+                                    taskTextFieldFocusNode.unfocus();
+                                  }
+                                }
                               },
                             ),
                           ),
