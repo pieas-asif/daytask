@@ -366,6 +366,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               focusNode: taskTextFieldFocusNode,
                               cursorColor: DTTheme.light,
                               cursorWidth: 3.0,
+                              style: TextStyle(
+                                color: DTTheme.light,
+                              ),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(0.0),
