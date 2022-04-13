@@ -83,7 +83,12 @@ class DBProvider {
     List<Object?>? whereArgs,
   }) async {
     Database db = await instance.database;
-    return await db.query(tableName, where: where, whereArgs: whereArgs);
+    return await db.query(
+      tableName,
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: "${TaskTable.colIsChecked} ASC",
+    );
   }
 
   // this function will drops the table as given table name

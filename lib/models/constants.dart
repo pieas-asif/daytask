@@ -1,18 +1,23 @@
 import 'package:flutter/widgets.dart';
 
 class DTTheme {
-  static Color dark = const Color(0xFFFFEEED);
-  static Color light = const Color(0xFF4C174D);
+  static const Color background = Color(0xFFd9d9d9);
+  static const Color foreground = Color(0xFF284b63);
 }
 
 class DTTBlack {
-  static const Color dark = Color(0xFF323232);
-  static const Color light = Color(0xFFE8E8E8);
+  static const Color background = Color(0xFF323232);
+  static const Color foreground = Color(0xFFE8E8E8);
+}
+
+class DTTClassic {
+  static const Color background = Color(0xFFd9d9d9);
+  static const Color foreground = Color(0xFF284b63);
 }
 
 class DTTPink {
-  static const Color dark = Color(0xFF4C174D);
-  static const Color light = Color(0xFFFFEEED);
+  static const Color background = Color(0xFF4C174D);
+  static const Color foreground = Color(0xFFFFEEED);
 }
 
 class TaskTable {

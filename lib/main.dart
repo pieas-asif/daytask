@@ -14,7 +14,6 @@ class MyApp extends StatelessWidget {
       title: 'Day Task',
       theme: ThemeData(
         fontFamily: "UbuntuMono",
-        brightness: Brightness.dark,
       ),
       initialRoute: HomeScreen.id,
       routes: {
