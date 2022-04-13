@@ -25,9 +25,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Task? updateableTask;
   late DateTime dateTime;
   late DateTime taskDate;
+  bool isDark = false;
+  late Color background;
+  late Color foreground;
 
   @override
   void initState() {
+    background = DTTheme.background;
+    foreground = DTTheme.foreground;
     dateTime = DateTime.now();
     taskDate = dateTime;
     fetchTasksFromDB();
@@ -178,269 +183,266 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: DTTheme.background,
+      backgroundColor: background,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 30.0,
-                horizontal: 20.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Agenda",
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: DTTheme.foreground,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _scaffoldKey.currentState?.openEndDrawer(),
-                    child: const Icon(
-                      FeatherIcons.menu,
-                      color: DTTheme.foreground,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    greet() ?? "Hello there, ",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: DTTheme.foreground,
-                    ),
-                  ),
-                  Text(
-                    "Today is ${DateFormat('EEEE').format(dateTime)}, ${DateFormat('MMMM d, y').format(dateTime)}.",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: DTTheme.foreground,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 10.0,
-                left: 20.0,
-                right: 20.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  MaterialButton(
-                    onPressed: () {
-                      showDatePicker(
-                        context: context,
-                        initialDate: taskDate,
-                        firstDate: DateTime(2022),
-                        lastDate: DateTime(2025),
-                      ).then((value) => _setTaskDate(date: value));
-                    },
-                    color: DTTheme.foreground,
-                    child: Text(
-                      dateTime.toString().split(" ").first ==
-                              taskDate.toString().split(" ").first
-                          ? "TODAY"
-                          : taskDate.toString().split(" ").first,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: DTTheme.background,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "$completedTaskCounter out of $taskCounter completed",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w200,
-                      color: DTTheme.foreground,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          color: background,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 30.0,
+                  horizontal: 20.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    for (var i in tasks)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: ListTile(
-                          leading: IconButton(
-                            onPressed: () {
-                              toggleCompleted(i);
-                            },
-                            icon: Icon(
-                              i.isCompleted
-                                  ? FeatherIcons.checkSquare
-                                  : FeatherIcons.square,
-                              color: DTTheme.foreground,
-                            ),
-                          ),
-                          title: Text(
-                            i.task,
-                            style: TextStyle(
-                              color: DTTheme.foreground,
-                              decoration: i.isCompleted
-                                  ? TextDecoration.lineThrough
-                                  : TextDecoration.none,
-                            ),
-                          ),
-                          trailing: PopupMenuButton(
-                            icon: const Icon(
-                              FeatherIcons.moreHorizontal,
-                              color: DTTheme.foreground,
-                            ),
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                child: Text("Edit"),
-                                value: 1,
-                              ),
-                              const PopupMenuItem(
-                                child: Text("Delete"),
-                                value: 2,
-                              ),
-                              const PopupMenuItem(
-                                child: Text("Move"),
-                                value: 3,
-                              ),
-                            ],
-                            onSelected: (value) {
-                              switch (value) {
-                                case 1:
-                                  {
-                                    setState(() {
-                                      updateTask = true;
-                                      updateableTask = i;
-                                      taskTextFieldController.text = i.task;
-                                    });
-                                    taskTextFieldFocusNode.requestFocus();
-                                  }
-                                  break;
-                                case 2:
-                                  {
-                                    deleteTask(i);
-                                  }
-                                  break;
-                                case 3:
-                                  {
-                                    showDatePicker(
-                                      context: context,
-                                      initialDate: taskDate,
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime(2025),
-                                    ).then(
-                                      (value) => _moveTaskToDate(
-                                        date: value,
-                                        task: i,
-                                      ),
-                                    );
-                                  }
-                                  break;
-                              }
-                            },
-                          ),
-                        ),
+                    Text(
+                      "Agenda",
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: foreground,
                       ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Color temp = foreground;
+                        setState(() {
+                          foreground = background;
+                          background = temp;
+                          isDark = !isDark;
+                        });
+                      },
+                      child: Icon(
+                        isDark ? FeatherIcons.moon : FeatherIcons.sun,
+                        color: foreground,
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 20.0,
-                right: 20.0,
-                bottom: 20.0,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      greet() ?? "Hello there, ",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: foreground,
+                      ),
+                    ),
+                    Text(
+                      "Today is ${DateFormat('EEEE').format(dateTime)}, ${DateFormat('MMMM d, y').format(dateTime)}.",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: foreground,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: dateTime.toString().split(" ").first ==
-                      taskDate.toString().split(" ").first
-                  ? Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 55,
-                            child: TextField(
-                              controller: taskTextFieldController,
-                              focusNode: taskTextFieldFocusNode,
-                              cursorColor: DTTheme.foreground,
-                              cursorWidth: 3.0,
-                              style: const TextStyle(
-                                color: DTTheme.foreground,
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 10.0,
+                  left: 20.0,
+                  right: 20.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    MaterialButton(
+                      onPressed: () {
+                        showDatePicker(
+                            context: context,
+                            initialDate: taskDate,
+                            firstDate: DateTime(2022),
+                            lastDate: DateTime(2025),
+                            builder: (context, _) {
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: ColorScheme.light(
+                                    primary: foreground,
+                                    onPrimary: background,
+                                    onSurface: foreground,
+                                    background: foreground,
+                                    secondary: foreground,
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      primary: foreground,
+                                    ),
+                                  ),
+                                ),
+                                child: _!,
+                              );
+                            }).then((value) => _setTaskDate(date: value));
+                      },
+                      color: foreground,
+                      child: Text(
+                        dateTime.toString().split(" ").first ==
+                                taskDate.toString().split(" ").first
+                            ? "TODAY"
+                            : taskDate.toString().split(" ").first,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: background,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "$completedTaskCounter out of $taskCounter completed",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w200,
+                        color: foreground,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i in tasks)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: ListTile(
+                            leading: IconButton(
+                              onPressed: () {
+                                toggleCompleted(i);
+                              },
+                              icon: Icon(
+                                i.isCompleted
+                                    ? FeatherIcons.checkSquare
+                                    : FeatherIcons.square,
+                                color: foreground,
                               ),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(0.0),
-                                  borderSide: const BorderSide(
-                                    color: DTTheme.foreground,
-                                    width: 3.0,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(0.0),
-                                  borderSide: const BorderSide(
-                                    color: DTTheme.foreground,
-                                    width: 3.0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(0.0),
-                                  borderSide: const BorderSide(
-                                    color: DTTheme.foreground,
-                                    width: 3.0,
-                                  ),
-                                ),
+                            ),
+                            title: Text(
+                              i.task,
+                              style: TextStyle(
+                                color: foreground,
+                                decoration: i.isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : TextDecoration.none,
                               ),
-                              onSubmitted: (task) {
-                                if (!updateTask) {
-                                  addTaskToDB(task: task);
-                                  taskTextFieldController.clear();
-                                  taskTextFieldFocusNode.unfocus();
-                                } else {
-                                  if (updateableTask != null) {
-                                    updateTaskToDB(
-                                      task: updateableTask!,
-                                      text: task,
-                                    );
-                                    taskTextFieldController.clear();
-                                    setState(() {
-                                      updateTask = false;
-                                      updateableTask = null;
-                                    });
-                                    taskTextFieldFocusNode.unfocus();
-                                  }
+                            ),
+                            trailing: PopupMenuButton(
+                              icon: Icon(
+                                FeatherIcons.moreHorizontal,
+                                color: foreground,
+                              ),
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  child: Text("Edit"),
+                                  value: 1,
+                                ),
+                                const PopupMenuItem(
+                                  child: Text("Delete"),
+                                  value: 2,
+                                ),
+                                const PopupMenuItem(
+                                  child: Text("Move"),
+                                  value: 3,
+                                ),
+                              ],
+                              onSelected: (value) {
+                                switch (value) {
+                                  case 1:
+                                    {
+                                      setState(() {
+                                        updateTask = true;
+                                        updateableTask = i;
+                                        taskTextFieldController.text = i.task;
+                                      });
+                                      taskTextFieldFocusNode.requestFocus();
+                                    }
+                                    break;
+                                  case 2:
+                                    {
+                                      deleteTask(i);
+                                    }
+                                    break;
+                                  case 3:
+                                    {
+                                      showDatePicker(
+                                        context: context,
+                                        initialDate: taskDate,
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime(2025),
+                                      ).then(
+                                        (value) => _moveTaskToDate(
+                                          date: value,
+                                          task: i,
+                                        ),
+                                      );
+                                    }
+                                    break;
                                 }
                               },
                             ),
                           ),
                         ),
-                        Container(
-                          height: 55,
-                          width: 80,
-                          decoration: const BoxDecoration(
-                            color: DTTheme.foreground,
-                          ),
-                          child: Center(
-                            child: IconButton(
-                              onPressed: () {
-                                String task =
-                                    taskTextFieldController.value.text;
-                                if (task.isNotEmpty) {
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 20.0,
+                  right: 20.0,
+                  bottom: 20.0,
+                ),
+                child: dateTime.toString().split(" ").first ==
+                        taskDate.toString().split(" ").first
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 55,
+                              child: TextField(
+                                controller: taskTextFieldController,
+                                focusNode: taskTextFieldFocusNode,
+                                cursorColor: foreground,
+                                cursorWidth: 3.0,
+                                style: TextStyle(
+                                  color: foreground,
+                                ),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(0.0),
+                                    borderSide: BorderSide(
+                                      color: foreground,
+                                      width: 3.0,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(0.0),
+                                    borderSide: BorderSide(
+                                      color: foreground,
+                                      width: 3.0,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(0.0),
+                                    borderSide: BorderSide(
+                                      color: foreground,
+                                      width: 3.0,
+                                    ),
+                                  ),
+                                ),
+                                onSubmitted: (task) {
                                   if (!updateTask) {
                                     addTaskToDB(task: task);
                                     taskTextFieldController.clear();
@@ -459,34 +461,69 @@ class _HomeScreenState extends State<HomeScreen> {
                                       taskTextFieldFocusNode.unfocus();
                                     }
                                   }
-                                } else {
-                                  // TODO: some to do here
-                                }
-                              },
-                              icon: const Icon(
-                                FeatherIcons.send,
-                                color: DTTheme.background,
+                                },
                               ),
                             ),
                           ),
+                          Container(
+                            height: 55,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: foreground,
+                            ),
+                            child: Center(
+                              child: IconButton(
+                                onPressed: () {
+                                  String task =
+                                      taskTextFieldController.value.text;
+                                  if (task.isNotEmpty) {
+                                    if (!updateTask) {
+                                      addTaskToDB(task: task);
+                                      taskTextFieldController.clear();
+                                      taskTextFieldFocusNode.unfocus();
+                                    } else {
+                                      if (updateableTask != null) {
+                                        updateTaskToDB(
+                                          task: updateableTask!,
+                                          text: task,
+                                        );
+                                        taskTextFieldController.clear();
+                                        setState(() {
+                                          updateTask = false;
+                                          updateableTask = null;
+                                        });
+                                        taskTextFieldFocusNode.unfocus();
+                                      }
+                                    }
+                                  } else {
+                                    // TODO: some to do here
+                                  }
+                                },
+                                icon: Icon(
+                                  FeatherIcons.send,
+                                  color: background,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : MaterialButton(
+                        onPressed: () => _setTaskDate(),
+                        child: Text(
+                          "BACK TO TODAY",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: background,
+                          ),
                         ),
-                      ],
-                    )
-                  : MaterialButton(
-                      onPressed: () => _setTaskDate(),
-                      child: const Text(
-                        "BACK TO TODAY",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: DTTheme.background,
-                        ),
+                        color: foreground,
+                        height: 55,
                       ),
-                      color: DTTheme.foreground,
-                      height: 55,
-                    ),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

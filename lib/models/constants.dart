@@ -1,8 +1,8 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class DTTheme {
-  static const Color background = Color(0xFFd9d9d9);
-  static const Color foreground = Color(0xFF284b63);
+  static const Color background = Color(0xFFd8f3dc);
+  static const Color foreground = Color(0xFF081c15);
 }
 
 class DTTBlack {
