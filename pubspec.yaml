@@ -36,6 +36,8 @@ dependencies:
   sqflite: ^2.0.1
   # intl for date time formatting
   intl: ^0.17.0
+  # for themeing
+  shared_preferences: ^2.0.13
 
 dev_dependencies:
   flutter_test:

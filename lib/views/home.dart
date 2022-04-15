@@ -4,6 +4,7 @@ import 'package:daytask/models/task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String id = 'home_screen';
@@ -33,10 +34,55 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     background = DTTheme.background;
     foreground = DTTheme.foreground;
+    getUserColorScheme();
     dateTime = DateTime.now();
     taskDate = dateTime;
     fetchTasksFromDB();
     super.initState();
+  }
+
+  void getUserColorScheme() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final bool? dark = prefs.getBool("dark");
+    if (dark == null) {
+      setState(() {
+        background = DTTheme.background;
+        foreground = DTTheme.foreground;
+        isDark = false;
+      });
+    } else if (dark) {
+      setState(() {
+        background = DTTheme.foreground;
+        foreground = DTTheme.background;
+        isDark = true;
+      });
+    } else {
+      setState(() {
+        background = DTTheme.background;
+        foreground = DTTheme.foreground;
+        isDark = false;
+      });
+    }
+  }
+
+  void toggleUserColorScheme() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if (isDark) {
+      setState(() {
+        background = DTTheme.background;
+        foreground = DTTheme.foreground;
+        isDark = false;
+      });
+    } else {
+      setState(() {
+        background = DTTheme.foreground;
+        foreground = DTTheme.background;
+        isDark = true;
+      });
+    }
+
+    await prefs.setBool("dark", isDark);
   }
 
   void fetchTasksFromDB() async {
@@ -195,14 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Color temp = foreground;
-                        setState(() {
-                          foreground = background;
-                          background = temp;
-                          isDark = !isDark;
-                        });
-                      },
+                      onTap: toggleUserColorScheme,
                       child: Icon(
                         isDark ? FeatherIcons.moon : FeatherIcons.sun,
                         color: foreground,
