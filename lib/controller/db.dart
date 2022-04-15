@@ -87,7 +87,7 @@ class DBProvider {
       tableName,
       where: where,
       whereArgs: whereArgs,
-      orderBy: "${TaskTable.colIsChecked} ASC",
+      orderBy: "${TaskTable.colIsChecked}, id ASC",
     );
   }
 

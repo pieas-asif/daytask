@@ -99,28 +99,16 @@ class _HomeScreenState extends State<HomeScreen> {
       whereArgs: [task.id],
     );
 
-    task.isCompleted = !task.isCompleted;
-    List<Task> newList = [];
-
-    for (Task t in tasks) {
-      if (!t.isCompleted) {
-        newList.add(t);
-      }
-    }
-    for (Task t in tasks) {
-      if (t.isCompleted) {
-        newList.add(t);
-      }
-    }
-
     setState(() {
-      tasks = newList;
+      task.isCompleted = !task.isCompleted;
       if (task.isCompleted) {
         completedTaskCounter += 1;
       } else {
         completedTaskCounter -= 1;
       }
     });
+
+    fetchTasksFromDB();
   }
 
   void deleteTask(Task task) async {
